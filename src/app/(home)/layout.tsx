@@ -5,7 +5,6 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
-  console.log("Layout render", children);
   return <HomeLayout>{children}</HomeLayout>;
 };
 
