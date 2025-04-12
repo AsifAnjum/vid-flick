@@ -8,7 +8,7 @@ interface LayoutProps {
 export const HomeLayout = ({ children }: LayoutProps) => {
   return (
     <SidebarProvider>
-      <div className="w-full bg-bl">
+      <div className="w-full">
         <HomeNavbar />
         <div>{children}</div>
       </div>
