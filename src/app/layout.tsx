@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] });
 import { ClerkProvider } from "@clerk/nextjs";
+import { TRPCProvider } from "@/trpc/client";
 
 export const metadata: Metadata = {
   title: "Vid Flick",
@@ -23,8 +24,10 @@ export default function RootLayout({
     <ClerkProvider afterSignOutUrl="/">
       <html lang="en">
         <body className={`${inter.className} antialiased`}>
-          <Toaster richColors />
-          {children}
+          <TRPCProvider>
+            <Toaster richColors />
+            {children}
+          </TRPCProvider>
         </body>
       </html>
     </ClerkProvider>
