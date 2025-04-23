@@ -5,7 +5,7 @@
   "scripts": {
     "dev:all": "concurrently \"bun dev\" \"bun dev:webhook\"",
     "dev": "next dev",
-    "dev:webhook": "ngrok http --url=vocal-easy-foal.ngrok-free.app 3000",
+    "dev:webhook": "ngrok http --url=kit-true-sculpin.ngrok-free.app 3000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
