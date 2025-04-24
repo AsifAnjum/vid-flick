@@ -13,7 +13,7 @@ import {
 export const StudioSidebarHeader = () => {
   const { user } = useUser();
   const { state } = useSidebar();
-  console.log("state sidebar", state);
+
   if (!user)
     return (
       <SidebarHeader className="flex items-center justify-center pb-4">

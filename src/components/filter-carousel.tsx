@@ -38,12 +38,7 @@ export const FilterCarousel = ({
     api.on("select", () => {
       setCurrent(api.selectedScrollSnap() + 1);
     });
-    console.log("carousel api", {
-      count,
-      current,
-      api,
-    });
-  }, [api, count, current]);
+  }, [api]);
 
   return (
     <div className="relative w-full">
