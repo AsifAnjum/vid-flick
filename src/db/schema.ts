@@ -80,9 +80,9 @@ export const videos = pgTable("videos", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// export const videoInsertSchema = createInsertSchema(videos);
-// export const videoUpdateSchema = createUpdateSchema(videos);
-// export const videoSelectSchema = createSelectSchema(videos);
+export const videoInsertSchema = createInsertSchema(videos);
+export const videoUpdateSchema = createUpdateSchema(videos);
+export const videoSelectSchema = createSelectSchema(videos);
 
 export const videoRelations = relations(videos, ({ one }) => ({
   users: one(users, {
