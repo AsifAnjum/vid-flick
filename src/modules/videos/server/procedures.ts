@@ -4,6 +4,7 @@ import { mux } from "@/lib/mux";
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
+import { UTApi } from "uploadthing/server";
 import { z } from "zod";
 
 export const videosRouter = createTRPCRouter({
@@ -95,5 +96,61 @@ export const videosRouter = createTRPCRouter({
       }
 
       return removedVideo;
+    }),
+
+  restoreThumbnail: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const { id: userId } = ctx.user;
+      const utApi = new UTApi({
+        token: process.env.UPLOADTHING_TOKEN!,
+      });
+
+      const [existingVideo] = await db
+        .select()
+        .from(videos)
+        .where(and(eq(videos.userId, userId), eq(videos.id, input.id)))
+        .limit(1);
+
+      if (!existingVideo) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+
+      if (!existingVideo.muxPlaybackId) {
+        throw new TRPCError({ code: "BAD_REQUEST" });
+      }
+
+      if (existingVideo.thumbnailKey) {
+        await utApi.deleteFiles(existingVideo.thumbnailKey);
+
+        await db
+          .update(videos)
+          .set({
+            thumbnailUrl: null,
+            thumbnailKey: null,
+          })
+          .where(and(eq(videos.id, input.id), eq(videos.userId, userId)));
+      }
+
+      const __thumbnailUrl = `https://image.mux.com/${existingVideo.muxPlaybackId}/thumbnail.jpg`;
+
+      const uploadedThumbnail = await utApi.uploadFilesFromUrl(__thumbnailUrl);
+
+      if (!uploadedThumbnail.data) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
+
+      const { key: thumbnailKey, url: thumbnailUrl } = uploadedThumbnail.data;
+
+      const [updatedVideo] = await db
+        .update(videos)
+        .set({
+          thumbnailUrl,
+          thumbnailKey,
+        })
+        .where(and(eq(videos.userId, userId), eq(videos.id, input.id)))
+        .returning();
+
+      return updatedVideo;
     }),
 });

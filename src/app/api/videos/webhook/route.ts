@@ -12,6 +12,7 @@ import { db } from "@/db";
 import { mux } from "@/lib/mux";
 import { videos } from "@/db/schema";
 import { DEFAULT_DURATION } from "@/constant";
+import { UTApi } from "uploadthing/server";
 // import { DEFAULT_DURATION } from "@/constants";
 
 const SIGNING_SECRET = process.env.MUX_WEBHOOK_SECRET!;
@@ -77,14 +78,29 @@ export const POST = async (req: Request) => {
         ? Math.round(data.duration * 1000)
         : DEFAULT_DURATION;
 
+      const utApi = new UTApi({ token: process.env.UPLOADTHING_TOKEN! });
+
+      const [uploadedThumbnail, uploadedPreview] =
+        await utApi.uploadFilesFromUrl([__thumbnailUrl, __previewUrl]);
+
+      if (!uploadedThumbnail.data || !uploadedPreview.data)
+        return new Response("Failed to upload thumbnail or preview", {
+          status: 500,
+        });
+
+      const { key: thumbnailKey, url: thumbnailUrl } = uploadedThumbnail.data;
+      const { key: previewKey, url: previewUrl } = uploadedPreview.data;
+
       await db
         .update(videos)
         .set({
           muxStatus: data.status,
           muxPlaybackId: playbackId,
           muxAssetId: data.id,
-          thumbnailUrl: __thumbnailUrl,
-          previewUrl: __previewUrl,
+          thumbnailUrl,
+          thumbnailKey,
+          previewUrl,
+          previewKey,
           duration,
         })
         .where(eq(videos.muxUploadId, data.upload_id));
