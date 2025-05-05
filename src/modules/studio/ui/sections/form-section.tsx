@@ -161,6 +161,38 @@ export const FormSectionSuspense = ({ videoId }: PageProps) => {
     },
   });
 
+  const generateTitle = trpc.videos.generateTitle.useMutation({
+    onSuccess: () => {
+      toast("Background Job started", {
+        description: "This may take a while",
+      });
+    },
+    onError: () => {
+      toast.error("Something went wrong");
+    },
+  });
+
+  const generateDescription = trpc.videos.generateDescription.useMutation({
+    onSuccess: () => {
+      toast("Background Job started", {
+        description: "This may take a while",
+      });
+    },
+    onError: () => {
+      toast.error("Something went wrong");
+    },
+  });
+
+  const generateThumbnail = trpc.videos.generateThumbnail.useMutation({
+    onSuccess: () => {
+      toast("Background Job started", {
+        description: "This may take a while",
+      });
+    },
+    onError: () => {
+      toast.error("Something went wrong");
+    },
+  });
   const restoreThumbnail = trpc.videos.restoreThumbnail.useMutation({
     onSuccess: () => {
       utils.studio.getMany.invalidate();
@@ -243,22 +275,22 @@ export const FormSectionSuspense = ({ videoId }: PageProps) => {
                     <FormLabel>
                       <div className="flex items-center gap-x-2">
                         Title
-                        {/* <Button
-                        size={"icon"}
-                        variant={"outline"}
-                        type="button"
-                        className="rounded-full size-6 [&_svg]:size-3"
-                        onClick={() => generateTitle.mutate({ id: video.id })}
-                        disabled={
-                          generateDescription.isPending || !video.muxTrackId
-                        }
-                      >
-                        {generateTitle.isPending ? (
-                          <Loader2Icon className="animate-spin" />
-                        ) : (
-                          <SparklesIcon />
-                        )}
-                      </Button> */}
+                        <Button
+                          size={"icon"}
+                          variant={"outline"}
+                          type="button"
+                          className="rounded-full size-6 [&_svg]:size-3"
+                          onClick={() => generateTitle.mutate({ id: video.id })}
+                          disabled={
+                            generateTitle.isPending || !video.muxTrackId
+                          }
+                        >
+                          {generateTitle.isPending ? (
+                            <Loader2Icon className="animate-spin" />
+                          ) : (
+                            <SparklesIcon />
+                          )}
+                        </Button>
                       </div>
                     </FormLabel>
                     <FormControl>
@@ -284,13 +316,18 @@ export const FormSectionSuspense = ({ videoId }: PageProps) => {
                           variant={"outline"}
                           type="button"
                           className="rounded-full size-6 [&_svg]:size-3"
-                          onClick={() => {}}
+                          onClick={() =>
+                            generateDescription.mutate({ id: video.id })
+                          }
+                          disabled={
+                            generateDescription.isPending || !video.muxTrackId
+                          }
                         >
-                          {/* {generateDescription.isPending ? (
-                          <Loader2Icon className="animate-spin" />
-                        ) : (
-                          <SparklesIcon />
-                        )} */}
+                          {generateDescription.isPending ? (
+                            <Loader2Icon className="animate-spin" />
+                          ) : (
+                            <SparklesIcon />
+                          )}
                         </Button>
                       </div>
                     </FormLabel>
@@ -298,8 +335,7 @@ export const FormSectionSuspense = ({ videoId }: PageProps) => {
                       <Textarea
                         {...field}
                         value={field.value ?? ""}
-                        rows={10}
-                        className="resize-none pr-10"
+                        className=" pr-10 h-48 resize-none"
                         placeholder="Add a description to your video"
                       />
                     </FormControl>
@@ -343,7 +379,7 @@ export const FormSectionSuspense = ({ videoId }: PageProps) => {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() =>
-                                setThumbnailGenerateModalOpen(true)
+                                generateThumbnail.mutate({ id: videoId })
                               }
                             >
                               <SparklesIcon className="size-4 mr-1" />
